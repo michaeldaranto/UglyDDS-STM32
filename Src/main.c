@@ -326,7 +326,8 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
   si5351_EnableOutputs((1<<0) | (1<<2));
 
   }
-
+//See https://michaeldaranto.com/2022/11/11/stm32-integer-to-char/
+//We need to convert from integer value to char. Module & integer division are our weapons
 void Int2Char(uint32_t f){
 	__disable_irq();
 	char g[11];
@@ -353,7 +354,8 @@ void Int2Char(uint32_t f){
       }
     __enable_irq();
 }
-
+//Correction value depend on Si5351's device. Please check with frequency meter first. The perfect one just need zero :)
+//Hot & cold weather will interfere with correction value. Nothing is perfect.
 void Init_Si5351(){
 
     	si5351_Init(correction);
@@ -364,6 +366,7 @@ void Init_Si5351(){
        	si5351_EnableOutputs((1<<0) | (1<<2));
 }
 
+//Maybe you want to change this value. Ex start from 100 to 10MHz
 void display_radix(){
 
 	ssd1306_SetCursor(78, 50);
@@ -392,7 +395,9 @@ void display_radix(){
    	ssd1306_WriteString("Hz", Font_7x10, White);
    	ssd1306_UpdateScreen();
 }
-
+//If you want to write something in OLED, don't forget to update screen. This function just for the frequency update @OLED.
+//SSD1306 don't understand Integer value so we need to convert from integer value to Char
+//The vfo value = frequency value @OLED ex 7.070.000.
 void display_frequency(){
 
 	ssd1306_SetCursor(0, 0);
@@ -400,6 +405,7 @@ void display_frequency(){
 	ssd1306_UpdateScreen();
 }
 
+//Without delay, the switch will bounce. But where is the HAL_Delay? Don't put here, please put at stm32f4xx_it.c
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
   if(GPIO_Pin == GPIO_PIN_0) {
