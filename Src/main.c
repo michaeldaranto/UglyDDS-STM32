@@ -40,12 +40,12 @@
 volatile uint32_t	count1=0;
 volatile uint32_t	count2=0;
 volatile uint8_t 	flag =0;
-volatile uint32_t	vfo = 7030000  ; //start freq - change to suit
-volatile uint32_t	radix = 100;  //start step size - change to suit
-const	 uint32_t	BW = 2400;
-const	 uint32_t	IF = 12000000;
+volatile uint32_t	vfo = 7030000  ; 	//start freq - change to suit
+volatile uint32_t	radix = 100;  		//start step size - change to suit
+const	 uint32_t	BW = 2400;			//Change to suit
+const	 uint32_t	IF = 12000000;		//Xtal value
 const	 uint32_t	bfo=IF-(BW/2);
-const 	int32_t 	correction = 978;
+const 	 int32_t 	correction = 978;	//Adjust with frequency meter for sure.
 
 
 /* USER CODE END PD */
@@ -70,13 +70,13 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim); //TIM3 Interupt handler for encoder
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin); //Interupt handler for Radix (encoder switch)
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim); 		//TIM3 Interupt handler for encoder
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);					//Interupt handler for Radix (encoder switch)
 
-void display_init(); //OLED SSD1306 init & some ugly text :)
-void display_radix(); //Radix 1Hz, 10HZ,...100KHz
-void display_frequency(); //Special for display frequency
-void Init_Si5351();  //Init Si5351 & set default frequency for first time
+void display_init(); 		//OLED SSD1306 init & some ugly text :)
+void display_radix(); 		//Radix 1Hz, 10HZ,...100KHz
+void display_frequency(); 	//Special for display frequency
+void Init_Si5351();  		//Init Si5351 & set default frequency for first time
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -323,9 +323,8 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
   display_frequency();
 
   si5351_SetupCLK0((bfo-vfo), SI5351_DRIVE_STRENGTH_4MA);	//Update the value
-  si5351_EnableOutputs((1<<0) | (1<<2));
 
-  }
+}
 //See https://michaeldaranto.com/2022/11/11/stm32-integer-to-char/
 //We need to convert from integer value to char. Module & integer division are our weapons
 void Int2Char(uint32_t f){
@@ -334,7 +333,7 @@ void Int2Char(uint32_t f){
 	  g[0]= ((f % 1000000000) / 100000000);
 	  g[1]= ((f % 100000000) / 10000000);
       g[2]= ((f % 10000000) / 1000000);
-      g[3]= -2;									//Nice trick for "."
+      g[3]= -2;											//Nice trick for "."
       g[4]= ((f % 1000000) / 100000);
       g[5]= ((f % 100000) / 10000);
       g[6]= ((f % 10000) / 1000);
@@ -344,12 +343,12 @@ void Int2Char(uint32_t f){
       g[10]= ((f % 10) / 1);
 
     uint8_t count=0;
-    while(f!=0) {								//just divide the value with 10 again & again to know the digits
+    while(f!=0) {										//just divide the value with 10 again & again to know the digits
       		  f=f/10;
       		  count++;
       		}
 
-    for (uint8_t i =(9-count); i<11; i++){		//tell me why (9-count)? :)
+    for (uint8_t i =(9-count); i<11; i++){				//tell me why (9-count)? :)
     	ssd1306_WriteChar(g[i]+48, Font_11x18, White);	//48 --> the magic number for decimal ASCII
       }
     __enable_irq();
@@ -361,8 +360,6 @@ void Init_Si5351(){
     	si5351_Init(correction);
        	si5351_SetupCLK0((bfo-vfo), SI5351_DRIVE_STRENGTH_4MA);
        	si5351_SetupCLK2(bfo, SI5351_DRIVE_STRENGTH_4MA);
-
-
        	si5351_EnableOutputs((1<<0) | (1<<2));
 }
 
@@ -395,6 +392,7 @@ void display_radix(){
    	ssd1306_WriteString("Hz", Font_7x10, White);
    	ssd1306_UpdateScreen();
 }
+
 //If you want to write something in OLED, don't forget to update screen. This function just for the frequency update @OLED.
 //SSD1306 don't understand Integer value so we need to convert from integer value to Char
 //The vfo value = frequency value @OLED ex 7.070.000.
