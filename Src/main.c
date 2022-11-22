@@ -70,13 +70,13 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim); //TIM3 Interupt handler for encoder
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin); //Interupt handler for Radix (encoder switch)
 
-void display_init();
-void display_radix();
-void display_frequency();
-void Init_Si5351();
+void display_init(); //OLED SSD1306 init & some ugly text :)
+void display_radix(); //Radix 1Hz, 10HZ,...100KHz
+void display_frequency(); //Special for display frequency
+void Init_Si5351();  //Init Si5351 & set default frequency for first time
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -118,7 +118,7 @@ int main(void)
   display_init();
   display_frequency();
   HAL_Delay(100);
-  HAL_TIM_Encoder_Start_IT(&htim3, TIM_CHANNEL_ALL);
+  HAL_TIM_Encoder_Start_IT(&htim3, TIM_CHANNEL_ALL); //Start TIM Encoder interupt so the encoder can work
   Init_Si5351();
   /* USER CODE END 2 */
 
@@ -294,39 +294,39 @@ void display_init() {
   HAL_Delay(100);
 
   ssd1306_SetCursor(0, 50);
-  ssd1306_WriteString("UglyDD5", Font_7x10, White);
+  ssd1306_WriteString("UglyDD5", Font_7x10, White); // change this if you want it :)
   HAL_Delay(100);
   ssd1306_SetCursor(0, 0);
 
   display_frequency();
   display_radix();
   HAL_Delay(100);
-  ssd1306_UpdateScreen();
+  ssd1306_UpdateScreen(); //need this function to update new buffer. Without this, the old one still exist
   HAL_Delay(100);
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 
-  count1= (__HAL_TIM_GET_COUNTER(htim))/4;
+  count1= (__HAL_TIM_GET_COUNTER(htim))/4; //smooth the counter from 4 step to 1
 
-  	if (count2>count1)
+  	if (count2>count1) 		//Down counter. If count2 > count1, vfo-= radix
   			vfo -= radix;
-   	if (vfo <= f_min)
+   	if (vfo <= f_min)		//Check if vfo <= f_min. If YES, Force the value = f_min although someone down the counter till tomorrow
   	  		vfo = f_min;
-  	if(count2<count1)
+  	if(count2<count1)		//Up Counter. If count2 < count1, vfo += radix
   			vfo += radix;
-  	if (vfo >= f_max)
+  	if (vfo >= f_max)		//Check if vfo >= f_max. If YES, don't let someone go high >=f_max!
   	  		vfo = f_max;
 
-  count2=count1;
+  count2=count1;		//Running in circles, coming up tails..Heads on a science apart -The Scientist
 
   display_frequency();
 
-  si5351_SetupCLK0((bfo-vfo), SI5351_DRIVE_STRENGTH_4MA);
+  si5351_SetupCLK0((bfo-vfo), SI5351_DRIVE_STRENGTH_4MA);	//Change the value
   si5351_EnableOutputs((1<<0) | (1<<2));
 
   }
-uint8_t		fflag=0x00;
+
 void Int2Char(uint32_t f){
 	__disable_irq();
 	char g[11];
