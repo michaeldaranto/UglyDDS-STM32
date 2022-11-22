@@ -85,7 +85,7 @@ void Init_Si5351();  //Init Si5351 & set default frequency for first time
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
+  * @brief  The application entry point.https://michaeldaranto.com/2022/11/11/stm32-integer-to-char/
   * @retval int
   */
 int main(void)
@@ -96,7 +96,7 @@ int main(void)
 
   /* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  /* Reset of all peripherals, Initializes the Flash interface andhttps://michaeldaranto.com/2022/11/11/stm32-integer-to-char/ the Systick. */
   HAL_Init();
 
   /* USER CODE BEGIN Init */
@@ -135,7 +135,7 @@ int main(void)
 
 /**
   * @brief System Clock Configuration
-  * @retval None
+  * @retval Nonehttps://michaeldaranto.com/2022/11/11/stm32-integer-to-char/
   */
 void SystemClock_Config(void)
 {
@@ -322,7 +322,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 
   display_frequency();
 
-  si5351_SetupCLK0((bfo-vfo), SI5351_DRIVE_STRENGTH_4MA);	//Change the value
+  si5351_SetupCLK0((bfo-vfo), SI5351_DRIVE_STRENGTH_4MA);	//Update the value
   si5351_EnableOutputs((1<<0) | (1<<2));
 
   }
@@ -334,7 +334,7 @@ void Int2Char(uint32_t f){
 	  g[0]= ((f % 1000000000) / 100000000);
 	  g[1]= ((f % 100000000) / 10000000);
       g[2]= ((f % 10000000) / 1000000);
-      g[3]= -2;
+      g[3]= -2;									//Nice trick for "."
       g[4]= ((f % 1000000) / 100000);
       g[5]= ((f % 100000) / 10000);
       g[6]= ((f % 10000) / 1000);
@@ -344,18 +344,18 @@ void Int2Char(uint32_t f){
       g[10]= ((f % 10) / 1);
 
     uint8_t count=0;
-    while(f!=0) {
+    while(f!=0) {								//just divide the value with 10 again & again to know the digits
       		  f=f/10;
       		  count++;
       		}
 
-    for (uint8_t i =(9-count); i<11; i++){
-    	ssd1306_WriteChar(g[i]+48, Font_11x18, White);
+    for (uint8_t i =(9-count); i<11; i++){		//tell me why (9-count)? :)
+    	ssd1306_WriteChar(g[i]+48, Font_11x18, White);	//48 --> the magic number for decimal ASCII
       }
     __enable_irq();
 }
 //Correction value depend on Si5351's device. Please check with frequency meter first. The perfect one just need zero :)
-//Hot & cold weather will interfere with correction value. Nothing is perfect.
+//Hot & cold weather will interfere with correction value. Nothing is perfect. 978 is the original value from Alex.
 void Init_Si5351(){
 
     	si5351_Init(correction);
