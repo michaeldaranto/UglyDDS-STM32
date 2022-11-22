@@ -47,7 +47,7 @@ const	 uint32_t	IF = 12000000;
 const	 uint32_t	bfo=IF-(BW/2);
 const 	int32_t 	correction = 978;
 
-uint8_t		fflag=0x00;
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -290,10 +290,9 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void display_init() {
 
-	ssd1306_Init();
+  ssd1306_Init();
   HAL_Delay(100);
- // ssd1306_Fill(Black);
- // ssd1306_UpdateScreen();
+
   ssd1306_SetCursor(0, 50);
   ssd1306_WriteString("UglyDD5", Font_7x10, White);
   HAL_Delay(100);
@@ -325,10 +324,9 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 
   si5351_SetupCLK0((bfo-vfo), SI5351_DRIVE_STRENGTH_4MA);
   si5351_EnableOutputs((1<<0) | (1<<2));
- // HAL_Delay(100);
-  fflag =0xFF;
-  }
 
+  }
+uint8_t		fflag=0x00;
 void Int2Char(uint32_t f){
 	__disable_irq();
 	char g[11];
