@@ -4,7 +4,7 @@
 #include "stm32f4xx_hal.h"
 
 #include <si5351.h>
-#include "ssd1306.h"
+
 #define SI5351_ADDRESS 0x60
 #define I2C_HANDLE hi2c1
 extern I2C_HandleTypeDef I2C_HANDLE;
@@ -361,12 +361,6 @@ void si5351_EnableOutputs(uint8_t enabled) {
 // Writes an 8 bit value of a register over I2C.
 void si5351_write(uint8_t reg, uint8_t value) {
     while (HAL_I2C_IsDeviceReady(&I2C_HANDLE, (uint16_t)(SI5351_ADDRESS<<1), 3, 10) != HAL_OK) {
-
-    	ssd1306_SetCursor(0, 25);
-    		  		  ssd1306_WriteString("NOr OK", Font_7x10, White);
-
-    		  		  ssd1306_UpdateScreen();
-
 
     }
 
