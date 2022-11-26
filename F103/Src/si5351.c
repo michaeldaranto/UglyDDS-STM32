@@ -1,7 +1,7 @@
 // vim: set ai et ts=4 sw=4:
 
 // change for your MCU
-#include "stm32f4xx_hal.h"
+#include "stm32f1xx_hal.h"
 
 #include <si5351.h>
 #include "ssd1306.h"
